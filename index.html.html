@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>RaphCon Webseite</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; background:#f9f9f9; }
+    header { background:#007BFF; color:white; padding:12px; }
+    nav a { color:white; margin:0 10px; text-decoration:none; font-weight:bold; cursor:pointer; }
+    nav a:hover { text-decoration:underline; }
+
+    .section { padding:20px; }
+    .container-section { display:flex; gap:20px; flex-wrap:wrap; }
+    .container-card { background:#fff; border-radius:10px; padding:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); width:250px; }
+    .container-card img { max-width:100%; border-radius:8px; }
+    .price { font-weight:bold; color:#007BFF; }
+
+    .box { background:#fff; border-radius:10px; padding:20px; margin:20px 0; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+    #chatArea { height:250px; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:10px; background:#fafafa; }
+    .msg { margin:6px; padding:8px; border-radius:6px; }
+    .user { background:#dbe9ff; text-align:right; }
+    .bot { background:#e3f8e0; text-align:left; }
+
+    .row { display:flex; gap:10px; }
+    input, button { padding:8px; border-radius:6px; border:1px solid #ccc; }
+    button { background:#007BFF; color:white; cursor:pointer; }
+    button:hover { background:#0056b3; }
+
+    /* AGB Overlay */
+    .agb-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; }
+    .agb-box { background:#fff; border-radius:10px; padding:20px; width:70%; max-width:700px; }
+    .agb-box button { margin:10px; padding:8px 14px; border:none; border-radius:6px; cursor:pointer; }
+    .accept { background:#28a745; color:white; }
+    .decline { background:#dc3545; color:white; }
+  </style>
+</head>
+<body>
+
+<!-- AGB Overlay -->
+<div id="agbOverlay" class="agb-overlay">
+  <div class="agb-box">
+    <h2>Allgemeine Geschäftsbedingungen (AGB)</h2>
+
+    <!-- Seite 1 -->
+    <div id="agbPage1" class="agb-page">
+      <h3>Seite 1 / 3</h3>
+      <p>Willkommen bei RaphCon. Diese AGB regeln die Nutzung unserer Dienste, einschließlich Containervermietung, Chat und Anrufsimulation.</p>
+      <button class="accept" onclick="acceptAgb()">✅ Ich akzeptiere die AGB</button>
+      <button onclick="nextAgbPage(2)">Weiter</button>
+    </div>
+
+    <!-- Seite 2 -->
+    <div id="agbPage2" class="agb-page" style="display:none;">
+      <h3>Seite 2 / 3</h3>
+      <p>1. Nutzung der Plattform erfolgt auf eigenes Risiko.<br>
+         2. Chats, Telefonate und Video-Simulationen können überwacht werden.<br>
+         3. Ihre Daten werden <b>nicht verkauft</b>, sondern nur intern verarbeitet.</p>
+      <button onclick="prevAgbPage(1)">Zurück</button>
+      <button onclick="nextAgbPage(3)">Weiter</button>
+    </div>
+
+    <!-- Seite 3 -->
+    <div id="agbPage3" class="agb-page" style="display:none;">
+      <h3>Seite 3 / 3</h3>
+      <p>4. Verstöße gegen die Regeln können zum Ausschluss führen.<br>
+         5. Sie haben das Recht, Ihre Einwilligung jederzeit zu widerrufen.<br>
+         6. Ohne Einwilligung dürfen Sie unsere Plattform nicht nutzen.</p>
+      <button onclick="prevAgbPage(2)">Zurück</button>
+      <button class="decline" onclick="declineAgb()">❌ Ich akzeptiere nicht</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hauptseite -->
+<div id="mainContent" style="display:none;">
+  <header>
+    <nav>
+      <a onclick="showSection('home')">Home</a>
+      <a onclick="showSection('chat')">Chat</a>
+      <a onclick="showSection('calls')">Anrufe</a>
+      <a onclick="showSection('adminLoginBox')">Admin</a>
+    </nav>
+  </header>
+
+  <!-- Home -->
+  <div id="home" class="section">
+    <h1 style="text-align:center; margin-top:20px;">Unsere Container</h1>
+    <div class="container-section">
+      <div class="container-card">
+        <img src="raphcon.jpg.webp" alt="Container 1">
+        <h3>10m³ Container</h3>
+        <p>Ideal für Bauschutt.</p>
+        <p class="price">Preis: <span id="price0"></span></p>
+      </div>
+      <div class="container-card">
+        <img src="raphcon123321.jpg" alt="Container 2">
+        <h3>20m³ Container</h3>
+        <p>Geeignet für Mischabfälle.</p>
+        <p class="price">Preis: <span id="price1"></span></p>
+      </div>
+      <div class="container-card">
+        <img src="presse-cont-142356.webp" alt="Container 3">
+        <h3>Pressecontainer</h3>
+        <p>Für Gewerbeabfälle.</p>
+        <p class="price">Preis: <span id="price2"></span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div id="chat" class="section" style="display:none;">
+    <div class="box">
+      <h3>💬 RaphCon Chat</h3>
+      <div id="chatArea"></div>
+      <div class="row">
+        <input type="text" id="userInput" placeholder="Nachricht eingeben...">
+        <button id="sendBtn">Senden</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bestellung -->
+  <div id="orderForm" class="section" style="display:none;">
+    <div class="box">
+      <h3>🛒 Container-Bestellung</h3>
+      <label>Adresse:</label>
+      <input type="text" id="orderAddress" placeholder="Ihre Adresse"><br><br>
+      
+      <label>Zahlungsmethode:</label><br>
+      <input type="radio" name="payment" value="bar" checked> Bar <br>
+      <input type="radio" name="payment" value="karte"> Karte <br><br>
+
+      <label>Telefonnummer (optional):</label>
+      <input type="text" id="orderPhone" placeholder="+49 ..."><br><br>
+
+      <label>E-Mail (optional):</label>
+      <input type="email" id="orderEmail" placeholder="Ihre E-Mail"><br><br>
+
+      <button onclick="submitOrder()">Bestellung absenden</button>
+    </div>
+  </div>
+
+  <!-- Calls -->
+  <div id="calls" class="section" style="display:none;">
+    <div class="box">
+      <h3>📞 Anrufe (Simulation)</h3>
+      <button onclick="startCall('audio')">📞 Audio-Call</button>
+      <button onclick="startCall('video')">🎥 Video-Call</button>
+      <div id="callArea"></div>
+    </div>
+  </div>
+
+  <!-- Admin Login -->
+  <div id="adminLoginBox" class="section" style="display:none;">
+    <div class="box">
+      <h3>🔑 Admin Login</h3>
+      <input type="password" id="adminPw" placeholder="Admin-Passwort">
+      <button id="adminLoginBtn">Login</button>
+    </div>
+  </div>
+
+  <!-- Admin Area -->
+  <div id="adminArea" class="section" style="display:none;">
+    <div class="box">
+      <h3>⚙️ Admin Bereich</h3>
+      <input type="text" id="newAdminPw" placeholder="Neues Passwort">
+      <button onclick="saveAdminPw()">Passwort speichern</button>
+    </div>
+    <div class="box">
+      <h3>💰 Preise ändern</h3>
+      <input type="number" id="editPrice0">
+      <input type="number" id="editPrice1">
+      <input type="number" id="editPrice2">
+      <button onclick="savePrices()">Speichern</button>
+    </div>
+    <div class="box">
+      <h3>📦 Statistik</h3>
+      <div id="containerStats"></div>
+    </div>
+    <div class="box">
+      <h3>💬 Chat-Logs</h3>
+      <div id="chatLogs"></div>
+    </div>
+    <div class="box">
+      <h3>📩 Bestellungen</h3>
+      <div id="orderList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let agbAccepted = localStorage.getItem("rc_agbAccepted") === "yes";
+let containerPrices = JSON.parse(localStorage.getItem("rc_containerPrices") || "[150,250,400]");
+let containerStats = JSON.parse(localStorage.getItem("rc_containerStats") || "[0,0,0]");
+let ADMIN_PW = localStorage.getItem("rc_adminPw") || "RaphConLindau";
+
+// ---- AGB ----
+function nextAgbPage(page){ document.querySelectorAll(".agb-page").forEach(p=>p.style.display="none"); document.getElementById("agbPage"+page).style.display="block"; }
+function prevAgbPage(page){ document.querySelectorAll(".agb-page").forEach(p=>p.style.display="none"); document.getElementById("agbPage"+page).style.display="block"; }
+function acceptAgb(){ agbAccepted = true; localStorage.setItem("rc_agbAccepted","yes"); document.getElementById("agbOverlay").style.display="none"; document.getElementById("mainContent").style.display="block"; }
+function declineAgb(){ agbAccepted = false; localStorage.setItem("rc_agbAccepted","no"); document.getElementById("agbOverlay").style.display="none"; document.getElementById("mainContent").style.display="block"; }
+window.addEventListener("load", ()=>{ if(localStorage.getItem("rc_agbAccepted")){ document.getElementById("agbOverlay").style.display="none"; document.getElementById("mainContent").style.display="block"; } renderPrices(); });
+
+// ---- Navigation ----
+function showSection(id){ document.querySelectorAll(".section").forEach(sec=>sec.style.display="none"); document.getElementById(id).style.display="block"; }
+
+// ---- Preise ----
+function renderPrices(){ containerPrices.forEach((p,i)=>{ document.getElementById("price"+i).innerText = p+" €"; }); }
+function savePrices(){ containerPrices[0]=parseInt(document.getElementById("editPrice0").value); containerPrices[1]=parseInt(document.getElementById("editPrice1").value); containerPrices[2]=parseInt(document.getElementById("editPrice2").value); localStorage.setItem("rc_containerPrices",JSON.stringify(containerPrices)); renderPrices(); alert("✅ Preise gespeichert"); }
+
+// ---- Chat ----
+document.getElementById("sendBtn").addEventListener("click", sendMessage);
+document.getElementById("userInput").addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(); });
+let lastQuestionWasBuy = false;
+
+function appendMessage(sender,text){ const div=document.createElement("div"); div.className="msg "+(sender==="user"?"user":"bot"); div.innerText=text; document.getElementById("chatArea").appendChild(div); document.getElementById("chatArea").scrollTop=document.getElementById("chatArea").scrollHeight; if(agbAccepted && sender==="user"){ saveChatLog(text); } }
+function sendMessage(){ const input=document.getElementById("userInput"); const msg=input.value.trim(); if(!msg) return; appendMessage("user",msg); setTimeout(()=>appendMessage("bot",getBotReply(msg)),500); }
+function getBotReply(msg){
+  msg=msg.toLowerCase();
+  if(msg.includes("10")){ lastQuestionWasBuy=true; return "Der 10m³ Container kostet "+containerPrices[0]+" €. Möchten Sie kaufen? (ja/nein)"; }
+  if(msg.includes("20")){ lastQuestionWasBuy=true; return "Der 20m³ Container kostet "+containerPrices[1]+" €. Möchten Sie kaufen? (ja/nein)"; }
+  if(msg.includes("presse")){ lastQuestionWasBuy=true; return "Der Pressecontainer kostet "+containerPrices[2]+" €. Möchten Sie kaufen? (ja/nein)"; }
+  if(msg.includes("preis")) return "Unsere Preise: 10m³="+containerPrices[0]+" €, 20m³="+containerPrices[1]+" €, Presse="+containerPrices[2]+" €.";
+  if(msg.includes("ja") && lastQuestionWasBuy){ lastQuestionWasBuy=false; showSection("orderForm"); return "Bitte geben Sie Ihre Daten im Formular ein."; }
+  if(msg.includes("nein") && lastQuestionWasBuy){ lastQuestionWasBuy=false; return "Alles klar 👍 Sie können jederzeit bestellen."; }
+  return "Das habe ich nicht verstanden.";
+}
+
+// ---- Chat Logs ----
+function saveChatLog(msg){ let logs = JSON.parse(localStorage.getItem("chatLogs")||"[]"); logs.push({time:new Date().toLocaleString(), msg:msg}); localStorage.setItem("chatLogs",JSON.stringify(logs)); }
+
+// ---- Bestellung ----
+function submitOrder(){
+  const address=document.getElementById("orderAddress").value;
+  const phone=document.getElementById("orderPhone").value;
+  const email=document.getElementById("orderEmail").value;
+  const payment=document.querySelector("input[name='payment']:checked").value;
+  if(!address){ alert("❌ Bitte Adresse eingeben!"); return; }
+  let orders=JSON.parse(localStorage.getItem("orders")||"[]");
+  orders.push({time:new Date().toLocaleString(), address, phone, email, payment});
+  localStorage.setItem("orders",JSON.stringify(orders));
+  alert("✅ Bestellung gesendet! Bitte bezahlen Sie "+(payment==="bar"?"bar beim Fahrer.":"per Karte beim Fahrer."));
+  showSection("home");
+}
+
+// ---- Calls ----
+function startCall(type){
+  if(type==="audio"){ document.getElementById("callArea").innerText="📞 Audio-Call gestartet"; if(agbAccepted) console.log("🎙️ Audio wird überwacht..."); }
+  if(type==="video"){ document.getElementById("callArea").innerText="🎥 Video-Call gestartet"; if(agbAccepted) console.log("📹 Video wird überwacht..."); }
+}
+
+// ---- Admin ----
+document.getElementById("adminLoginBtn").addEventListener("click", ()=>{
+  const pw=document.getElementById("adminPw").value;
+  if(pw===ADMIN_PW){ showSection('adminArea'); renderAdmin(); }
+  else alert("❌ Falsches Passwort");
+});
+function saveAdminPw(){ ADMIN_PW=document.getElementById("newAdminPw").value; localStorage.setItem("rc_adminPw",ADMIN_PW); alert("✅ Passwort geändert"); }
+function renderAdmin(){
+  document.getElementById("editPrice0").value=containerPrices[0];
+  document.getElementById("editPrice1").value=containerPrices[1];
+  document.getElementById("editPrice2").value=containerPrices[2];
+  document.getElementById("containerStats").innerHTML=`10m³: ${containerStats[0]} Aufrufe<br>20m³: ${containerStats[1]} Aufrufe<br>Presse: ${containerStats[2]} Aufrufe`;
+  let logs=JSON.parse(localStorage.getItem("chatLogs")||"[]");
+  document.getElementById("chatLogs").innerHTML=logs.map(l=>`<div>[${l.time}] ${l.msg}</div>`).join("");
+  let orders=JSON.parse(localStorage.getItem("orders")||"[]");
+  document.getElementById("orderList").innerHTML=orders.map(o=>`
+    <div>
+      📅 ${o.time}<br>
+      🏠 Adresse: ${o.address}<br>
+      💳 Zahlung: ${o.payment}<br>
+      📞 Telefon: ${o.phone||"-"}<br>
+      ✉️ E-Mail: ${o.email||"-"}
+    </div><hr>`).join("");
+}
+</script>
+</body>
+</html>

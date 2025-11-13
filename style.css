@@ -1,0 +1,61 @@
+body{
+    background-color: rgb(9, 22, 1);
+    background-color: rgba(134, 216, 27, 0.082);
+}
+main{
+    background-color: rgb(216, 216, 216);
+    margin: 50px;
+    padding: 20px;
+    border-radius: 10px;
+}
+h1{
+    color: rgb(192, 148, 148)
+    text-align-right ;
+    }
+h2{
+    color: rgb(43, 90, 37);
+    text-align: center;
+
+}
+h3{
+    color: rgb(43, 90, 37);
+    text-align: left;
+}
+button{
+    background-color: rgb(216, 216, 10);
+    color: white;
+    padding: 30px 30px;;
+    text-align: center;
+    text-decoration: none;
+    font-size: 10px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+.google-maps {
+    padding-bottom:50%;
+    position:relative;
+    
+}
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th {padding: 10px;
+    text-align: left;background-color: rgb(218, 221, 10);
+}
+.card {background-color: rgb(247, 243, 4) ;   
+border: radius 10px;
+padding: 20px;
+margin: 20px;
+margin: top 10px;
+margin-left: 10px;
+                                                                                                      
+}  
+
+.row {
+  display: flex;
+  flex-direction:  row;}
+.column {
+    displayflex ;  
+    flex-direction: column;
+} 
